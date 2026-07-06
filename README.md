@@ -75,13 +75,29 @@ stringData:
   slack-webhook-url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
-### 4. Install ArgoCD
+### 4. Create incode-backend database secret
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: incode-backend
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: incode-backend-db
+  namespace: incode-backend
+stringData:
+  DATABASE_URL: postgres://<user>:<password>@<host>:5432/<db>
+```
+
+### 5. Install ArgoCD
 ```bash
 helm dependency update ./argocd
 helm upgrade --install argocd ./argocd -f argocd/<env>.values.yaml -n argocd
 ```
 
-### 5. Install ArgoCD apps
+### 6. Install ArgoCD apps
 ```bash
 helm install argocd-apps ./argocd-apps -f argocd-apps/<env>.values.yaml -n argocd
 ```
