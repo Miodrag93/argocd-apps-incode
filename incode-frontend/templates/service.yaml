@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: incode-frontend
+spec:
+  selector:
+    app: incode-frontend
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
