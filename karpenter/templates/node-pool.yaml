@@ -21,13 +21,13 @@ spec:
       requirements:
         - key: karpenter.sh/capacity-type
           operator: In
-          values: [spot, on-demand]
+          values: {{ .Values.nodePool.capacityType | toYaml | nindent 12 }}
         - key: eks.amazonaws.com/instance-category
           operator: In
-          values: [c, m, r,t]
+          values: {{ .Values.nodePool.instanceCategory | toYaml | nindent 12 }}
         - key: eks.amazonaws.com/instance-size
           operator: In
-          values: [medium]
+          values: {{ .Values.nodePool.instanceSize | toYaml | nindent 12 }}
         - key: kubernetes.io/arch
           operator: In
           values: [amd64]

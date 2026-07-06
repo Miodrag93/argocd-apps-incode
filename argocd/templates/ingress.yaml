@@ -2,17 +2,17 @@
 # yet on first `helm install`, since ArgoCD (wave 1) is installed before Traefik
 # (wave 3). Uncomment this after the initial bootstrap once Traefik is up; the
 # next sync of the self-managed `argocd` Application will apply it.
-# apiVersion: traefik.io/v1alpha1
-# kind: IngressRoute
-# metadata:
-#   name: argocd
-#   namespace: argocd
-# spec:
-#   entryPoints:
-#     - web
-#   routes:
-#     - match: Host(`{{ .Values.ingress.host }}`)
-#       kind: Rule
-#       services:
-#         - name: argocd-server
-#           port: 80
+ apiVersion: traefik.io/v1alpha1
+ kind: IngressRoute
+ metadata:
+   name: argocd
+   namespace: argocd
+ spec:
+   entryPoints:
+     - web
+   routes:
+     - match: Host(`{{ .Values.ingress.host }}`)
+       kind: Rule
+       services:
+         - name: argocd-server
+           port: 80

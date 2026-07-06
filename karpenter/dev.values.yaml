@@ -8,8 +8,14 @@ nodeClass:
     - subnet-0bdb86ae553d317e7
 
 nodePool:
-  cpuLimit: 3
+  cpuLimit: 4
   consolidationPolicy: WhenEmptyOrUnderutilized
+  capacityType: [spot, on-demand]
+  instanceCategory: [c, m, r, t]
+  instanceSize: [medium]
 
 systemNodePool:
-  cpuLimit: 2
+  cpuLimit: 4
+  capacityType: [spot, on-demand]
+  instanceCategory: [c, m, r, t]
+  instanceSize: [medium]
