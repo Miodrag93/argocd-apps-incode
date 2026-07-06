@@ -1,0 +1,117 @@
+environment: dev
+
+ingress:
+  host: dev-argocd.crashbackloop.org
+
+argo-cd:
+  global:
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    nodeSelector:
+      dedicated: system
+  configs:
+    params:
+      server.insecure: true
+    cm:
+      url: https://dev-argocd.crashbackloop.org
+      admin.enabled: "true"
+      accounts.github-actions: apiKey
+    rbac:
+      policy.csv: |
+        p, github-actions, applications, get, default/incode-frontend, allow
+        p, github-actions, applications, sync, default/incode-frontend, allow
+        p, github-actions, applications, get, default/incode-backend, allow
+        p, github-actions, applications, sync, default/incode-backend, allow
+      policy.default: role:readonly
+  server:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+  controller:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "256Mi"
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+  repoServer:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+  redis:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
+      limits:
+        cpu: "200m"
+        memory: "128Mi"
+  applicationSet:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
+  dex:
+    enabled: false
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+  notifications:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal

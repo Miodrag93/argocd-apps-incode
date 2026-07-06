@@ -1,0 +1,9 @@
+environment: dev
+
+targetGroupARN: "arn:aws:elasticloadbalancing:us-east-1:101533649281:targetgroup/traefik/c8247d8369b56656"
+
+traefik:
+  deployment:
+    kind: DaemonSet
+  service:
+    type: ClusterIP

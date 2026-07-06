@@ -1,0 +1,56 @@
+environment: dev
+
+aws-for-fluent-bit:
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::101533649281:role/incode-cluster-dev-fluent-bit"
+
+  cloudWatch:
+    enabled: false
+
+  cloudWatchLogs:
+    enabled: true
+    region: us-east-1
+    logGroupTemplate: "/eks/incode-cluster-dev/$kubernetes['namespace_name']"
+    logStreamPrefix: "k8s-"
+    logStreamTemplate: "$kubernetes['container_name']"
+    autoCreateGroup: true
+    logRetentionDays: 30
+
+  tolerations:
+    - operator: Exists
+
+  additionalFilters: |
+    [FILTER]
+        Name              multiline
+        Match             *
+        multiline.key_content log
+        multiline.parser  python
+
+    [FILTER]
+        Name         nest
+        Match        kube.*
+        Operation    lift
+        Nested_under kubernetes
+        Add_prefix   kube_
+
+    [FILTER]
+        Name         modify
+        Match        kube.*
+        Remove       kube_host
+        Remove       kube_pod_ip
+        Remove       kube_docker_id
+        Remove       kube_container_hash
+        Remove       kube_container_image
+        Remove       kube_pod_id
+        Remove       kube_pod_name
+        Remove       kube_annotations
+        Remove_regex kube_labels.*
+
+    [FILTER]
+        Name          nest
+        Match         kube.*
+        Operation     nest
+        Wildcard      kube_*
+        Nest_under    kubernetes
+        Remove_prefix kube_

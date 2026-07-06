@@ -1,0 +1,13 @@
+environment: dev
+
+metrics-server:
+  args:
+    - --metric-resolution=5m
+    - --kubelet-insecure-tls
+  nodeSelector:
+    dedicated: system
+  tolerations:
+    - key: dedicated
+      value: system
+      effect: NoSchedule
+      operator: Equal

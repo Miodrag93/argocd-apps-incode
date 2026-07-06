@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-bit
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:Miodrag93/argocd-apps-incode.git
+    targetRevision: HEAD
+    path: fluent-bit
+    helm:
+      valueFiles:
+        - {{ .Values.environment }}.values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fluent-bit
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

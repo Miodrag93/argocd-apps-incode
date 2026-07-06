@@ -1,0 +1,37 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: incode-{{ .Values.environment }}-general
+spec:
+  limits:
+    cpu: {{ .Values.nodePool.cpuLimit }}
+  disruption:
+    budgets:
+      - nodes: 10%
+      - nodes: "1"
+    consolidateAfter: 1m
+    consolidationPolicy: {{ .Values.nodePool.consolidationPolicy }}
+  template:
+    spec:
+      expireAfter: 336h
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: incode-{{ .Values.environment }}-default
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: [spot, on-demand]
+        - key: eks.amazonaws.com/instance-category
+          operator: In
+          values: [c, m, r,t]
+        - key: eks.amazonaws.com/instance-size
+          operator: In
+          values: [medium]
+        - key: kubernetes.io/arch
+          operator: In
+          values: [amd64]
+        - key: kubernetes.io/os
+          operator: In
+          values: [linux]
+      terminationGracePeriod: 5m

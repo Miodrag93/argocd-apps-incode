@@ -1,0 +1,16 @@
+environment: dev
+
+aws-load-balancer-controller:
+  nodeSelector:
+    dedicated: system
+  tolerations:
+    - key: dedicated
+      value: system
+      effect: NoSchedule
+      operator: Equal
+  clusterName: "incode-cluster-dev"
+  region: "us-east-1"
+  vpcId: "vpc-0d9a02031523864f4"
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::101533649281:role/incode-cluster-dev-aws-lb-controller"

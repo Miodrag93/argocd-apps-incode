@@ -1,0 +1,15 @@
+environment: dev
+
+nodeClass:
+  securityGroup: sg-0f396d65d407b1257
+  subnets:
+    - subnet-0628b1354b956a61d
+    - subnet-0e4042844ee7dfd90
+    - subnet-0bdb86ae553d317e7
+
+nodePool:
+  cpuLimit: 3
+  consolidationPolicy: WhenEmptyOrUnderutilized
+
+systemNodePool:
+  cpuLimit: 2

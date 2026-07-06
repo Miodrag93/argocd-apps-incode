@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform-{{ .Values.environment }}
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:Miodrag93/argocd-apps-incode.git
+    targetRevision: HEAD
+    path: argocd-apps
+    helm:
+      valueFiles:
+        - {{ .Values.environment }}.values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

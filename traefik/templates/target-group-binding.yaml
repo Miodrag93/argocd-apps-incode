@@ -1,0 +1,11 @@
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: traefik
+  namespace: traefik
+spec:
+  serviceRef:
+    name: traefik
+    port: 80
+  targetGroupARN: {{ .Values.targetGroupARN }}
+  targetType: ip

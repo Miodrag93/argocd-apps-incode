@@ -1,0 +1,25 @@
+apiVersion: eks.amazonaws.com/v1
+kind: NodeClass
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  name: incode-{{ .Values.environment }}-default
+spec:
+  subnetSelectorTerms:
+    {{- range .Values.nodeClass.subnets }}
+    - id: {{ . }}
+    {{- end }}
+  securityGroupSelectorTerms:
+    - id: {{ .Values.nodeClass.securityGroup }}
+  role: incode-eks-node-role-{{ .Values.environment }}
+  snatPolicy: Random
+  networkPolicy: DefaultAllow
+  networkPolicyEventLogs: Disabled
+  ephemeralStorage:
+    size: 30Gi
+    iops: 3000
+    throughput: 125
+  tags:
+    Name: incode-{{ .Values.environment }}-eks-nodes
+    Environment: {{ .Values.environment }}
+    karpenter.sh/revalidate: "2"
