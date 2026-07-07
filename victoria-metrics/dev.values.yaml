@@ -1,0 +1,135 @@
+environment: dev
+
+grafana:
+  host: "dev-grafana.crashbackloop.org"
+
+alertmanager:
+  # Name of the ServiceAccount created for the alertmanager pod (templates/serviceaccount-alertmanager.yaml).
+  # Must match victoria-metrics-k8s-stack.alertmanager.spec.serviceAccountName below.
+  serviceAccountName: vmalertmanager-sns
+  # IAM role trusted by this cluster's EKS OIDC provider, granted sns:Publish on the topic
+  # referenced in victoria-metrics-k8s-stack.alertmanager.config.receivers below.
+  snsRoleArn: "arn:aws:iam::101533649281:role/incode-cluster-dev-alertmanager"
+
+victoria-metrics-k8s-stack:
+  grafana:
+    adminPassword: admin
+    persistence:
+      enabled: false
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+
+  alertmanager:
+    enabled: true
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    spec:
+      # ServiceAccount annotated for IRSA (see templates/serviceaccount-alertmanager.yaml).
+      # The EKS pod identity webhook injects AWS credentials for sns:Publish - no static
+      # keys or mounted secrets required.
+      serviceAccountName: vmalertmanager-sns
+    config:
+      route:
+        receiver: blackhole
+        group_by: ['alertname', 'namespace']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+        routes:
+          - matchers:
+              - team = "incode"
+            receiver: aws-sns
+      receivers:
+        - name: blackhole
+        - name: aws-sns
+          sns_configs:
+            - sigv4:
+                region: us-east-1
+              topic_arn: "arn:aws:sns:us-east-1:101533649281:incode-cluster-dev-alertmanager"
+              subject: '{{ if eq .Status "firing" }}[FIRING] {{ else }}[RESOLVED] {{ end }}{{ .CommonLabels.alertname }}'
+              send_resolved: true
+              message: |
+                Severity: {{ .CommonLabels.severity }}
+                Namespace: {{ .CommonLabels.namespace }}
+                {{ range .Alerts }}
+                Summary: {{ .Annotations.summary }}
+                Description: {{ .Annotations.description }}
+                {{ end }}
+
+  victoria-metrics-operator:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+
+  kube-state-metrics:
+    nodeSelector:
+      dedicated: system
+    tolerations:
+      - key: dedicated
+        value: system
+        effect: NoSchedule
+        operator: Equal
+    metricLabelsAllowlist:
+      - nodes=[*]
+
+  vmalert:
+    spec:
+      notifiers:
+        - url: "http://vmalertmanager-vm-victoria-metrics-k8s-stack.monitoring.svc:9093"
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: dedicated
+          value: system
+          effect: NoSchedule
+          operator: Equal
+
+  vmagent:
+    spec:
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: dedicated
+          value: system
+          effect: NoSchedule
+          operator: Equal
+
+  vmsingle:
+    spec:
+      extraArgs:
+        maxLabelsPerTimeseries: "60"
+      retentionPeriod: "7d"
+      storage:
+        storageClassName: gp2-csi
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: dedicated
+          value: system
+          effect: NoSchedule
+          operator: Equal
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "256Mi"
+        limits:
+          memory: "1Gi"

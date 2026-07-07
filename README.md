@@ -130,7 +130,7 @@ Karpenter (Wave 0)
 │
 └── Fluent Bit (Wave 4)
 │   Ships container logs to CloudWatch
-│   Organized by: /eks/vortex-cluster-dev/<namespace>/<container>
+│   Organized by: /eks/incode-cluster-dev/<namespace>/<container>
 │   Independent — no dependency on Traefik or LB Controller
 │
 └── Your Applications (Wave 5+)

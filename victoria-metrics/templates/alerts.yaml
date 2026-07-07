@@ -1,0 +1,51 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: custom-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: pod.alerts
+      rules:
+        - alert: PodOOMKilled
+          expr: |
+            kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+            or
+            kube_pod_container_status_terminated_reason{reason="OOMKilled"} == 1
+          for: 0m
+          labels:
+            severity: critical
+            team: incode
+          annotations:
+            summary: "Pod OOMKilled"
+            description: "Container *{{"{{"}} $labels.container {{"}}"}}* in pod *{{"{{"}} $labels.pod {{"}}"}}* (namespace: *{{"{{"}} $labels.namespace {{"}}"}}*) was OOMKilled."
+
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 * 15 > 3
+          for: 5m
+          labels:
+            severity: critical
+            team: incode
+          annotations:
+            summary: "Pod CrashLooping"
+            description: "Container *{{"{{"}} $labels.container {{"}}"}}* in pod *{{"{{"}} $labels.pod {{"}}"}}* (namespace: *{{"{{"}} $labels.namespace {{"}}"}}*) is crash looping."
+
+        - alert: JobFailed
+          expr: kube_job_status_failed > 0
+          for: 0m
+          labels:
+            severity: critical
+            team: incode
+          annotations:
+            summary: "Job Failed"
+            description: "Job *{{"{{"}} $labels.job_name {{"}}"}}* (namespace: *{{"{{"}} $labels.namespace {{"}}"}}*) has failed."
+
+        - alert: PodUnschedulable
+          expr: kube_pod_status_unschedulable == 1
+          for: 5m
+          labels:
+            severity: critical
+            team: incode
+          annotations:
+            summary: "Pod Unschedulable"
+            description: "Pod *{{"{{"}} $labels.pod {{"}}"}}* (namespace: *{{"{{"}} $labels.namespace {{"}}"}}*) cannot be scheduled for more than 5 minutes."
