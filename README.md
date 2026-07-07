@@ -21,6 +21,9 @@
   - `logs:DescribeLogStreams`
   - `logs:DescribeLogGroups`
   - `logs:PutRetentionPolicy`
+- IAM role for Alertmanager (IRSA, `monitoring:vmalertmanager-sns`) with the following permissions:
+  - `sns:Publish` (scoped to the alertmanager SNS topic)
+- AWS SNS topic with at least one confirmed email subscription — alerts are delivered via SNS, not Slack. Role, topic, and subscription are provisioned by Terraform (see `terraform-aws-incode-assignment`), not this repo.
 - SSH deploy key (or other SSH key with read access) for the git repo(s) ArgoCD will sync from
 
 > **Note:** Karpenter must be installed manually before bootstrapping ArgoCD.
@@ -59,7 +62,7 @@ stringData:
 ```
 
 
-### 3. Create Alertmanager Slack secret
+### 3. Create Grafana admin secret
 ```yaml
 apiVersion: v1
 kind: Namespace
@@ -69,10 +72,11 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: alertmanager-config
+  name: grafana-admin-credentials
   namespace: monitoring
 stringData:
-  slack-webhook-url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+  admin-user: admin
+  admin-password: <your-password>
 ```
 
 ### 4. Create incode-backend database secret
@@ -127,6 +131,11 @@ Karpenter (Wave 0)
 │   Exposed via TargetGroupBinding → existing Terraform ALB
 │   Handles all L7 routing inside the cluster
 │   Requires: AWS Load Balancer Controller (TargetGroupBinding CRD)
+│
+└── Victoria Metrics (Wave 3)
+│   Metrics stack (VictoriaMetrics + Grafana) and alerting (Alertmanager → AWS SNS → email)
+│   Independent — no dependency on Traefik or LB Controller
+│   Grafana's IngressRoute requires Traefik's CRDs to exist first
 │
 └── Fluent Bit (Wave 4)
 │   Ships container logs to CloudWatch
