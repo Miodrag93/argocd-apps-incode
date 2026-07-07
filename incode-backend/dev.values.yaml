@@ -1,20 +1,15 @@
 environment: dev
-
 image:
   repository: 101533649281.dkr.ecr.us-east-1.amazonaws.com/incode-backend
-  tag: initial-release
-
+  tag: 31db6ff
 replicaCount: 1
-
 service:
   port: 8000
-
 env:
   allowedHosts: "*"
   databaseSecret:
     name: incode-backend-db
     key: DATABASE_URL
-
 resources:
   requests:
     cpu: "100m"
