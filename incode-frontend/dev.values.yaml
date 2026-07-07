@@ -1,17 +1,12 @@
 environment: dev
-
 image:
   repository: 101533649281.dkr.ecr.us-east-1.amazonaws.com/incode-frontend
-  tag: initial-release-1
-
+  tag: 11a7378
 replicaCount: 1
-
 service:
   port: 8080
-
 ingress:
   host: dev-devopsblogs.crashbackloop.org
-
 resources:
   requests:
     cpu: "100m"
