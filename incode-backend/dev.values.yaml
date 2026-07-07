@@ -1,7 +1,7 @@
 environment: dev
 image:
   repository: 101533649281.dkr.ecr.us-east-1.amazonaws.com/incode-backend
-  tag: 31db6ff
+  tag: c907818
 replicaCount: 1
 service:
   port: 8000
